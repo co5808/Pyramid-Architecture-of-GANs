@@ -1,11 +1,12 @@
 # this reprository is constructed from CAAE reprository
-# for paper Learning face age progression 
-# 
+# for paper Learning face age progression
+#
 
 import torch
 from torch import nn
 from torch import optim
 from torch.autograd import Variable
+from CAAE_128 import *
 from dataloader import *
 from misc import *
 from models import *
@@ -14,6 +15,8 @@ from makeLabel import *
 import os
 
 ## boolean variable indicating whether cuda is available
+
+
 use_cuda = torch.cuda.is_available()
 
 makeDir()
@@ -84,11 +87,11 @@ for epoch in range(niter):
     for i,(img_data,img_label) in enumerate(dataloader):
 
         # make image variable and class variable
-        #  img_data -->  
+        #  img_data -->
 
         #  previously age was encoded  and then decoded
         img_data_v = Variable(img_data)
-        #  
+        #
         # age is stored
         img_age = img_label/2
         # gender is stored
@@ -99,7 +102,7 @@ for epoch in range(niter):
 
 
         if epoch == 0 and i == 0:
-            # noise data is given 
+            # noise data is given
             fixed_noise = img_data[:8].repeat(10,1,1,1)
 
             fixed_g = img_gender[:8].view(-1,1).repeat(10,1)
@@ -120,13 +123,13 @@ for epoch in range(niter):
 
         # make one hot encoding version of label
         batchSize = img_data_v.size(0)
-        
+
         # (img_age,batch_size=20,n_l=)
         age_ohe = one_hot(img_age,batchSize,n_l,use_cuda)
 
         # prior distribution z_star, real_label, fake_label
         z_star = Variable(torch.FloatTensor(batchSize*n_z).uniform_(-1,1)).view(batchSize,n_z)
-        # real_label 
+        # real_label
         real_label = Variable(torch.ones(batchSize).fill_(1)).view(-1,1)
         # fake_label
         fake_label = Variable(torch.ones(batchSize).fill_(0)).view(-1,1)
@@ -153,7 +156,7 @@ for epoch in range(niter):
         reconst = netG(z,age_ohe,img_gender_v)
         # discriminatoroutput is given as discrimninator_reconst is got from D_img()
         D_reconst,_ = netD_img(reconst,age_ohe.view(batchSize,n_l,1,1),img_gender_v.view(batchSize,1,1,1))
-        # gan loss is given from bce 
+        # gan loss is given from bce
         G_img_loss = BCE(D_reconst,real_label)
 
 
