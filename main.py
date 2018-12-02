@@ -13,6 +13,7 @@ from models import *
 import pickle
 from makeLabel import *
 import os
+import platform
 
 ## boolean variable indicating whether cuda is available
 
@@ -24,7 +25,10 @@ moveFiles()
 
 # loading Images()
 print("loading Images")
-dataloader = loadImgs()
+if platform.system() == 'Window':
+    dataloader = loadImgs(des_dir=".\\data\\")
+else:
+    dataloader = loadImgs()
 
 ## build model and use cuda if available
 print("cuda setting")

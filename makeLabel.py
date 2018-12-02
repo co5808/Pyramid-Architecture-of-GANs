@@ -1,7 +1,19 @@
 import os
+import platform
 
 origin_dir = "./UTKFace"
-des_dir = "./data"
+
+if platform.system() == 'Windows':
+    origin_dir = ".\\UTKFace"
+else:
+    origin_dir = "./UTKFace"
+
+
+if platform.system() == 'Windows':
+    des_dir = '.\\data'
+else:
+    des_dir = "./data/"
+
 imgFiles = [file for file in os.listdir(origin_dir)]
 
 def encodeAge(n):

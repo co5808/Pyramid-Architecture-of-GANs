@@ -10,6 +10,9 @@ import torch.nn.functional as F
 import torchvision.utils as vutils
 import pickle
 from PIL import ImageFile
+import platform
+import os
+import makeLabel
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -25,8 +28,15 @@ use_cuda = torch.cuda.is_available()
 n_age = int(n_z/n_l)
 n_gender = int(n_z/2)
 
-des_dir = "./data/"
+if platform.system() == 'Windows':
+    des_dir = '.\\data\\'
+else:
+    des_dir = "./data/"
 
+if not os.path.exists(des_dir):
+    makeLabel.makeDir()
+
+print(des_dir)
 dataset = dset.ImageFolder(root=des_dir,
                            transform=transforms.Compose([
                                transforms.Scale(img_size),
