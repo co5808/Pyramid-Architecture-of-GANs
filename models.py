@@ -176,7 +176,7 @@ class Vgg16(nn.Module):
 class discriminator(nn.Module):
     def __init__(self):
         super(Vgg16,self).__init__()
-        #class Vgg16(nn.Module)
+        class Vgg16(nn.Module):
     def __init__(self):
         super(Vgg16, self).__init__()
         features = models.vgg16(pretrained=True).features
