@@ -10,6 +10,7 @@ import torch.nn.functional as F
 import torchvision.utils as vutils
 import pickle
 from PIL import ImageFile
+
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 n_channel = 3
@@ -87,9 +88,15 @@ class Generator(nn.Module):
         )
 
     def forward(self, z, age, gender):
+        #print("-"*10 + "forward"+ "-" * 10 )
+        #print(z)
+        #print( "z's type = " + str(z.type()) )
         l = age.repeat(1, n_age)
+        #print(l)
+        #print ( "l's type = " + str(l.type()) )
         k = gender.view(-1, 1).repeat(1, n_gender)
-
+        #print(k)
+        #print( "k's type = " + str(k.type()) )
         x = torch.cat([z, l, k], dim=1)
         fc = self.fc(x).view(-1, 16 * n_gen, 8, 8)
         out = self.upconv(fc)
@@ -177,5 +184,62 @@ def one_hot(labelTensor):
 def TV_LOSS(imgTensor):
     x = (imgTensor[:,:,1:,:]-imgTensor[:,:,:img_size-1,:])**2
     y = (imgTensor[:,:,:,1:]-imgTensor[:,:,:,:img_size-1])**2
+    out = (x.mean(dim=1)+y.mean(dim=1)).mean()
+    return out
+
+
+if use_cuda:
+    netE = Encoder().cuda()
+    netD_img = Dimg().cuda()
+    netD_z  = Dz().cuda()
+    netG = Generator().cuda()
+else:
+    netE = Encoder()
+    netD_img = Dimg()
+    netD_z  = Dz()
+    netG = Generator()
+
+def weights_init(m):
+    classname = m.__class__.__name__
+    if classname.find('Conv') != -1 or classname.find("Linear") !=-1:
+        m.weight.data.normal_(0.0, 0.02)
+    elif classname.find('BatchNorm') != -1:
+        m.weight.data.normal_(1.0, 0.02)
+        m.bias.data.fill_(0)
+
+netE.apply(weights_init)
+netD_img.apply(weights_init)
+netD_z.apply(weights_init)
+netG.apply(weights_init)
+
+optimizerE = optim.Adam(netE.parameters(),lr=0.0002,betas=(0.5,0.999))
+optimizerD_z = optim.Adam(netD_z.parameters(),lr=0.0002,betas=(0.5,0.999))
+optimizerD_img = optim.Adam(netD_img.parameters(),lr=0.0002,betas=(0.5,0.999))
+optimizerG = optim.Adam(netG.parameters(),lr=0.0002,betas=(0.5,0.999))
+
+def one_hot(labelTensor):
+    oneHot = - torch.ones(batchSize*n_l).view(batchSize,n_l)
+    for i,j in enumerate(labelTensor):
+        oneHot[i,j] = 1
+    if use_cuda:
+        return Variable(oneHot).cuda()
+    else:
+        return Variable(oneHot)
+
+if use_cuda:
+    BCE = nn.BCELoss().cuda()
+    L1  = nn.L1Loss().cuda()
+    CE = nn.CrossEntropyLoss().cuda()
+    MSE = nn.MSELoss().cuda()
+else:
+    BCE = nn.BCELoss()
+    L1  = nn.L1Loss()
+    CE = nn.CrossEntropyLoss()
+    MSE = nn.MSELoss()
+
+
+def TV_LOSS(imgTensor):
+    x = (imgTensor[:,:,1:,:]-imgTensor[:,:,:img_size-1,:])**2
+    y = (imgTensor[:,:,:,1:]-imgTensor[:,:,:,:img_size-1])**2 
     out = (x.mean(dim=1)+y.mean(dim=1)).mean()
     return out
