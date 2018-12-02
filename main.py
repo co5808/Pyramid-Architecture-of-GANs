@@ -23,9 +23,11 @@ makeDir()
 moveFiles()
 
 # loading Images()
+print("loading Images")
 dataloader = loadImgs()
 
 ## build model and use cuda if available
+print("cuda setting")
 if use_cuda:
     netE = Encoder().cuda()
     netD_img = Dimg().cuda()
@@ -38,18 +40,21 @@ else:
     netG = Generator()
 
 ## apply weight initialization
+print("weight initialization")
 netE.apply(weights_init)
 netD_img.apply(weights_init)
 netD_z.apply(weights_init)
 netG.apply(weights_init)
 
 ## build optimizer for each networks
+print("optimizer networks")
 optimizerE = optim.Adam(netE.parameters(),lr=0.0002,betas=(0.5,0.999))
 optimizerD_z = optim.Adam(netD_z.parameters(),lr=0.0002,betas=(0.5,0.999))
 optimizerD_img = optim.Adam(netD_img.parameters(),lr=0.0002,betas=(0.5,0.999))
 optimizerG = optim.Adam(netG.parameters(),lr=0.0002,betas=(0.5,0.999))
 
 ## build criterions to calculate loss, and use cuda if available
+print("calculate loss")
 if use_cuda:
     BCE = nn.BCELoss().cuda()
     L1  = nn.L1Loss().cuda()
@@ -61,7 +66,8 @@ else:
     CE = nn.CrossEntropyLoss()
     MSE = nn.MSELoss()
 
-## fixed variables to regress / progress age
+## fixed variables to regress / progress agea
+print("fixed agea")
 fixed_l = -torch.ones(80*10).view(80,10)
 
 
@@ -76,7 +82,8 @@ if use_cuda:
 
 outf='./result_tv_gender'
 
-if os.path.exists(outf):
+#if os.path.exists(outf):
+if not os.path.exists(outf):
     os.mkdir(outf)
 # iterations =50
 niter=50
@@ -84,8 +91,9 @@ niter=50
 # iters for 50 epochs
 for epoch in range(niter):
     # enumerates(dataLoader)
+    print("progress " +  str(epoch) + " / " + str(niter) )
     for i,(img_data,img_label) in enumerate(dataloader):
-
+        print("\t--processing " + str(i) + " / " + str(len(dataloader) ) )
         # make image variable and class variable
         #  img_data -->
 
@@ -109,7 +117,7 @@ for epoch in range(niter):
 
 
             fixed_img_v = Variable(fixed_noise)
-            fixed_g_v = Variable(fixed_g)
+            fixed_g_v = Variable(fixed_g).float()
 
             pickle.dump(fixed_noise,open("fixed_noise.p","wb"))
 
@@ -201,7 +209,9 @@ for epoch in range(niter):
 
 
     ## save fixed img for every 20 step
+    print("save fixed img 20 step")
     fixed_z = netE(fixed_img_v)
+    print(str(type(fixed_z) ) )
     fixed_fake = netG(fixed_z,fixed_l_v,fixed_g_v)
     vutils.save_image(fixed_fake.data,
                 '%s/reconst_epoch%03d.png' % (outf,epoch+1),
