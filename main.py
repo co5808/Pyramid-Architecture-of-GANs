@@ -22,7 +22,7 @@ use_cuda = torch.cuda.is_available()
 
 makeDir()
 moveFiles()
-
+CAAE_Init()
 # loading Images()
 print("loading Images")
 if platform.system() == 'Window':

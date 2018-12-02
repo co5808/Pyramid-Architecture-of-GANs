@@ -33,20 +33,18 @@ if platform.system() == 'Windows':
 else:
     des_dir = "./data/"
 
-if not os.path.exists(des_dir):
-    makeLabel.makeDir()
-
-print(des_dir)
-dataset = dset.ImageFolder(root=des_dir,
+def CAAE_Init():
+    dataset = dset.ImageFolder(root=des_dir,
                            transform=transforms.Compose([
                                transforms.Scale(img_size),
                                transforms.ToTensor(),
                                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                            ]))
 
-dataloader = torch.utils.data.DataLoader(dataset,
+    dataloader = torch.utils.data.DataLoader(dataset,
                                          batch_size= batchSize,
                                          shuffle=True)
+
 
 class Encoder(nn.Module):
     def __init__(self):
