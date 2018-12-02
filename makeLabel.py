@@ -1,16 +1,16 @@
 import os
 import platform
 
-origin_dir = "./UTKFace"
+
 
 if platform.system() == 'Windows':
-    origin_dir = ".\\UTKFace"
+    origin_dir = ".\\UTKFace\\1"
 else:
-    origin_dir = "./UTKFace"
+    origin_dir = "./UTKFace/1"
 
 
 if platform.system() == 'Windows':
-    des_dir = '.\\data'
+    des_dir = '.\\data\\'
 else:
     des_dir = "./data/"
 
@@ -49,6 +49,8 @@ def makeDir():
             os.mkdir(new_folder)
 
 def moveFiles():
+    print(len(imgFiles))
+
     for file in imgFiles:
         lst = file.split("_")
         # age is first given  and gender is given second  
