@@ -14,12 +14,6 @@ import pickle
 from makeLabel import *
 import os
 import platform
-#image 출력을 위한 라이브러리 출력
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-import numpy as np
-
-
 
 ## boolean variable indicating whether cuda is available
 
@@ -109,13 +103,9 @@ for epoch in range(niter):
 
         #  previously age was encoded  and then decoded
         img_data_v = Variable(img_data)
-        #plt.imshow(img_data_v)
-        #plt.show()
-
         #
         # age is stored
         img_age = img_label/2
-
         # gender is stored
         img_gender = img_label%2*2-1
 
