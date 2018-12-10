@@ -6,6 +6,7 @@ import torch
 from torch import nn
 from torch import optim
 from torch.autograd import Variable
+import torchvision
 from CAAE_128 import *
 from dataloader import *
 from misc import *
@@ -14,8 +15,15 @@ import pickle
 from makeLabel import *
 import os
 import platform
+import matplotlib.pyplot as plt
+import numpy as np
 
 ## boolean variable indicating whether cuda is available
+
+def imshow(img):
+    img = img / 2 + 0.5
+    npimg = img.numpy()
+    plt.imshow(np.transpose(npimg, (1,2,0)))
 
 
 use_cuda = torch.cuda.is_available()
@@ -103,6 +111,7 @@ for epoch in range(niter):
 
         #  previously age was encoded  and then decoded
         img_data_v = Variable(img_data)
+        imshow(img_data_v)
         #
         # age is stored
         img_age = img_label/2
