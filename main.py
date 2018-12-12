@@ -15,42 +15,59 @@ import pickle
 from makeLabel import *
 import os
 import platform
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import numpy as np
 
 ## boolean variable indicating whether cuda is available
-"""
+
+test = 0
+def saveImg(img):
+    global test
+
+    vutils.save_image(img, '%s/test.png' % (test),normalize=True)
+    test = test+ 1
+    input()
+
 def imshow(img):
     img = img / 2 + 0.5
     npimg = img.numpy()
-    plt.pyplot.imshow(np.transpose(npimg, (1,2,0)))
-"""
+    plt.imshow(img)
+
+
+use_cuda = torch.cuda.is_available()
+
+makeDir()
+moveFiles()
+CAAE_Init()
+# loading Images()
+print("loading Images")
+if platform.system() == 'Window':
+    dataloader = loadImgs(des_dir=".\\data\\")
+else:
+    dataloader = loadImgs()
+
+## build model and use cuda if available
+print("cuda setting")
+if use_cuda:
+    netE = Encoder().cuda()
+    netD_img = Dimg().cuda()
+    netD_z  = Dz().cuda()
+    netG = Generator().cuda()
+else:
+    netE = Encoder()
+    netD_img = Dimg()
+    netD_z  = Dz()
+    netG = Generator()
+
+#img_data 출력을 위한 함수
+def PrintImageData(ImageFile):
+    fig = plt.figure(figsize=(10,10))
+    for i, img in enumerate(ImageFile):
+        for j, img_r in enumerate(img):
+            ax = fig.add_subplot(3,20,(i*3)+(j+1))
+            plt.imshow(img_r.numpy())
+
 def main():
-    use_cuda = torch.cuda.is_available()
-
-    makeDir()
-    moveFiles()
-    CAAE_Init()
-    # loading Images()
-    print("loading Images")
-    if platform.system() == 'Window':
-        dataloader = loadImgs(des_dir=".\\data\\")
-    else:
-        dataloader = loadImgs()
-
-    ## build model and use cuda if available
-    print("cuda setting")
-    if use_cuda:
-        netE = Encoder().cuda()
-        netD_img = Dimg().cuda()
-        netD_z  = Dz().cuda()
-        netG = Generator().cuda()
-    else:
-        netE = Encoder()
-        netD_img = Dimg()
-        netD_z  = Dz()
-        netG = Generator()
-
     ## apply weight initialization
     print("weight initialization")
     netE.apply(weights_init)
@@ -111,7 +128,7 @@ def main():
 
             #  previously age was encoded  and then decoded
             img_data_v = Variable(img_data)
-            imshow(img_data_v)
+            #imshow(img_data_v)
             #
             # age is stored
             img_age = img_label/2
